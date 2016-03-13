@@ -19,6 +19,38 @@ class ParserServiceTest extends TestCase
     }
     
     
+    public function testParserForFileContentWithFrontMatter()
+    {
+      
+        $service = app('Pronto\Markdown\Parser');
+        
+        $elaborated = $service->file( __DIR__ . '/storage/en/index.md');
+        
+        $this->assertNotNull($elaborated);
+        
+        $this->assertEquals('<p>This is the page <strong>static text</strong></p>', $elaborated);
+
+    }
+    
+    public function testParseFrontMatter()
+    {
+      
+        $service = app('Pronto\Markdown\Parser');
+        
+        $elaborated = $service->frontmatter( __DIR__ . '/storage/en/index.md');
+        
+        $this->assertNotNull($elaborated);
+        
+        $this->assertEquals([
+            'Order' => 0,
+            'PageTitle' => 'Welcome to Pronto.',
+            'TOCTitle' => 'Welcome',
+            'MetaDescription' => 'This is Pronto, the CMS almost "ready".',
+            'MetaTags' => 'pronto, cms'
+        ], $elaborated);
+
+    }
+    
     
     /**
      * Test 
