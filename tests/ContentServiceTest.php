@@ -61,6 +61,20 @@ class ContentServiceTest extends TestCase
     public function testGetGlobalNavigationMenu()
     {
         
+        content()->set_current_language('it');
+        
+        $content_service = content()->global_navigation();
+        
+        $this->assertInstanceOf('Illuminate\Support\Collection', $content_service);
+        
+        $this->assertEquals(1, $content_service->count());
+        
+        $elementPaths = $content_service->map(function($r){
+            return $r->filepathname();
+        })->toArray();
+        
+        $this->assertEquals(["index.md"], $elementPaths);
+        
         content()->set_current_language('en');
         
         $content_service = content()->global_navigation();
@@ -75,21 +89,8 @@ class ContentServiceTest extends TestCase
             return $r->filepathname();
         })->toArray();
         
-        $this->assertEquals(["index.md", "section_1\index.md"], $elementPaths);
+        $this->assertEquals(["index.md", "section-1\index.md"], $elementPaths);
         
-        content()->set_current_language('it');
-        
-        $content_service = content()->global_navigation();
-        
-        $this->assertInstanceOf('Illuminate\Support\Collection', $content_service);
-        
-        $this->assertEquals(1, $content_service->count());
-        
-        $elementPaths = $content_service->map(function($r){
-            return $r->filepathname();
-        })->toArray();
-        
-        $this->assertEquals(["index.md"], $elementPaths);
     }
     
     // public function testGetSections()

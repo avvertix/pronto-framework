@@ -17,13 +17,14 @@ class ContentServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        
         // gets the configuration file
         $this->mergeConfigFrom(__DIR__ . '/../../config/pronto.php', 'pronto');
 
         // register the Content provider
         $this->app->singleton('Pronto\Contracts\Content', function ($app) {
             
-            $c = new Content( config('pronto'), $app->make('Illuminate\Filesystem\Filesystem'), $app->make(Parser::class) );
+            $c = new Content( config('pronto'), $app->make('Illuminate\Filesystem\Filesystem') );
             
             return $c;
         });

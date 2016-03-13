@@ -47,11 +47,7 @@ class Content implements ContentContract
         
         $this->language = $config['default_language'];
         
-        // $config_path = realpath(config_path('config.json'));
-        
-        // if(@is_file($config_path)){
-        //     $this->config = json_decode(file_get_contents($config_path));
-        // }
+        $this->config = $config;
         
 	}
     
