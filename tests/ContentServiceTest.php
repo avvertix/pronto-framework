@@ -89,7 +89,7 @@ class ContentServiceTest extends TestCase
             return $r->filepathname();
         })->toArray();
         
-        $this->assertEquals(["index.md", "section-1\index.md"], $elementPaths);
+        $this->assertEquals(["index.md", "section-1".DIRECTORY_SEPARATOR."index.md"], $elementPaths);
         
     }
     
