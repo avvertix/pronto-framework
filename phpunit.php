@@ -96,10 +96,7 @@ $app = new Laravel\Lumen\Application(
 
 // $app->configure('pronto');
 
-$app->register(Pronto\Providers\ContentServiceProvider::class);
 $app->register(Pronto\Providers\ParsingServiceProvider::class);
-
-
-
+$app->register(Pronto\Providers\ContentServiceProvider::class);
 
 return $app;

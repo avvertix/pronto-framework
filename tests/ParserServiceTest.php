@@ -1,6 +1,7 @@
 <?php
 
 use Pronto\Content\Content;
+use Pronto\Markdown\Parser;
 
 class ParserServiceTest extends TestCase
 {
@@ -12,9 +13,9 @@ class ParserServiceTest extends TestCase
     public function testParserInstance()
     {
         
-        $service = app('Pronto\Markdown\Parser');
+        $service = app(Parser::class);
         
-        $this->assertInstanceOf('Pronto\Markdown\Parser', $service);
+        $this->assertInstanceOf(Parser::class, $service);
         
     }
     
@@ -22,7 +23,7 @@ class ParserServiceTest extends TestCase
     public function testParserForFileContentWithFrontMatter()
     {
       
-        $service = app('Pronto\Markdown\Parser');
+        $service = app(Parser::class);
         
         $elaborated = $service->file( __DIR__ . '/storage/en/index.md');
         
@@ -35,7 +36,7 @@ class ParserServiceTest extends TestCase
     public function testParseFrontMatter()
     {
       
-        $service = app('Pronto\Markdown\Parser');
+        $service = app(Parser::class);
         
         $elaborated = $service->frontmatter( __DIR__ . '/storage/en/index.md');
         
@@ -60,7 +61,7 @@ class ParserServiceTest extends TestCase
     public function testParserForText()
     {
       
-        $service = app('Pronto\Markdown\Parser');
+        $service = app(Parser::class);
         
         $elaborated = $service->text('**bold**');
         
@@ -73,7 +74,7 @@ class ParserServiceTest extends TestCase
     public function testParserForFileContent()
     {
         
-        $service = app('Pronto\Markdown\Parser');
+        $service = app(Parser::class);
         
         $file_path = __DIR__ . '/test.md';
         
@@ -95,7 +96,7 @@ class ParserServiceTest extends TestCase
     public function testParserForFileException()
     {
         
-        $service = app('Pronto\Markdown\Parser');
+        $service = app(Parser::class);
         
         $service->file(__DIR__ . '/casual.md');
         
