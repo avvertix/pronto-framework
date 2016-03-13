@@ -2,11 +2,17 @@
 
 # Pronto CMS Framework
 
+> **This is a work in progress**
 
-> **warning** This is a work in progress and uses the development version of [Laravel Lumen](http://lumen.laravel.com/). If you're not comfortable with dev things, please wait until the Lumen 5.2 version will be out for everybody.
 
+This is the base framework (or better to say collection of services) for the flat-file based [Pronto CMS](https://github.com/avvertix/pronto-cms). 
+This little framework provides Markdown parsing and Content extraction capabilities in the form of [Laravel Lumen](http://lumen.laravel.com/) service providers.
 
-This is the base framwork for the flat-file based [Pronto CMS](https://github.com/avvertix/pronto-cms). This little framework provides Markdown parsing and Content extraction capabilities in Laravel service providers.
+- [Requirements](#requirements)
+- [API and Services offered](#api-and-services-offered)
+- [What content is understood](#what-content-is-understood)
+ - [Metadata](#metadata)
+
 
 ## Requirements
 
