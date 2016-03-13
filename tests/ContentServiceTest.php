@@ -4,6 +4,27 @@ use Pronto\Content\Content;
 
 class ContentServiceTest extends TestCase
 {
+    
+    // data providers -----------------------
+    
+    function pages_provider(){
+        
+        return [
+            ['welcome-to-pronto', 'Welcome to Pronto'],
+            ['sub-index', 'Sub Index'],
+            ['section-1/sub-index', 'Sub Index'],
+            ['section-1/', 'Sub Index'],
+            ['section-1/other-page', 'Other Page'],
+            ['section-1/sub-1/', 'Sub 1 Index'],
+            ['section-1/sub-1', 'Sub 1 Index'],
+            ['section-1/sub-1/sub-section', 'Sub section'],
+        ];
+        
+    }
+    
+    
+    // tests --------------------------------
+    
     /**
      * Test content() helper for getting Pront\Contract\Content implementation Pront\Content\Content
      *
@@ -107,43 +128,23 @@ class ContentServiceTest extends TestCase
         
     // }
     
-    // public function testGetPage()
-    // {
-    //     $page = content()->page('index');
+    /**
+     * @dataProvider pages_provider 
+     */
+    public function testGetPage($page_slug, $expected_title)
+    {
+        $page = content()->page( $page_slug );
         
-    //     $this->assertInstanceOf('Pronto\Content\PageItem', $page);
+        $this->assertInstanceOf('Pronto\Content\PageItem', $page);
         
-    //     $this->assertEquals('Index', $page->title());
-    //     $this->assertEquals('index', $page->slug());
-    //     $this->assertEquals('/index', $page->path());
-        
-        
-    //     $page = content()->page('index.md', 'example-section');
-        
-    //     $this->assertInstanceOf('Pronto\Content\PageItem', $page);
-        
-    //     $this->assertEquals('Index', $page->title());
-        
-        
-    //     $page = content()->page('page-1-1.md', 'example-section/sub-section-1/');
-        
-    //     $this->assertInstanceOf('Pronto\Content\PageItem', $page);
-        
-    //     $this->assertEquals('Page 1 1', $page->title());
-    //     $this->assertEquals('page-1-1', $page->slug());
-    //     $this->assertEquals('example-section/sub-section-1/page-1-1', $page->path());
-        
-    //     $page = content()->page('page-1-1', 'example-section/sub-section-1');
-        
-    //     $this->assertInstanceOf('Pronto\Content\PageItem', $page);
-        
-    // }
+        $this->assertEquals($expected_title, $page->title());
+    }
     
     /**
      * @expectedException Pronto\Exceptions\PageNotFoundException
      */
-    // public function testGetPageNotFound()
-    // {
-    //     $page = content()->page('non-existing-file');
-    // }
+    public function testGetPageNotFound()
+    {
+        $page = content()->page('non-existing-file');
+    }
 }
