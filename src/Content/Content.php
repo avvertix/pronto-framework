@@ -22,81 +22,98 @@ class Content implements ContentContract
     private $filesystem = null;
     
     /**
-     * The path where the markdown files are stored
+     * The path where the site content (i.e. the markdown files) is stored
      *
      * @var string
      */
     private $storage_path = '.';
     
+    
     private $config = null;
+    
+    /**
+     * Current content language
+     *
+     * @var string
+     */
+    private $language = 'en';
+    
 	
-	function __construct(Filesystem $fileSystemService){
+	function __construct($config, Filesystem $fileSystemService){
         
 		$this->filesystem = $fileSystemService;
-        // dd(config('pronto.content_folder'));
-        $this->storage_path = content_path();
         
-        $config_path = realpath(storage_path('app/config.json'));
+        $this->storage_path = $config['content_folder'];
         
-        if(@is_file($config_path)){
-            $this->config = json_decode(file_get_contents($config_path));
-        }
+        $this->language = $config['default_language']; 
+        
+        // $config_path = realpath(config_path('config.json'));
+        
+        // if(@is_file($config_path)){
+        //     $this->config = json_decode(file_get_contents($config_path));
+        // }
         
 	}
+    
+    
+    // Language methods ---------------------
+    
+    function available_languages(){
+        
+        $langs = $this->filesystem->directories($this->storage_path);
+        
+        $langs = array_map(function($l){
+            return basename($l);
+        }, $langs);
+        
+        return $langs;
+        
+    }
+    
+    function current_language(){
+        
+        return $this->language;
+        
+    }
+    
+    function set_current_language( $language ){
+        
+        $this->language = $language;
+        
+        return $this;
+        
+    }
+    
+    
+    // Navigation methods -------------------
 	
     /**
-      Get the global navigation menu.
-      
-      return collection of menu items grabbed from the config + first level sections (if enabled in the configuration)
-    
-    */
-    function menu(){
+     * Get the global navigation menu.
+     * 
+     * Returns the global website navigation menu composed by first-level pages that are section 
+     * homes (index.md), 0-level pages and menu items grabbed from the config
+     *
+     * @return Collection<PageItem>
+     */
+    function global_navigation(){
+        
         $items = array();
         
-        // grab config menu elements
-        if(!is_null($this->config) && property_exists($this->config, 'menu')){
+        $collection = $this->_all();
         
-            // dd($this->config->menu);
-            
-            $items = array_merge($items, array_filter(array_map(function($el){
-                
-                // InvalidMenuItemException
-                
-                // "title": "Home",
-                // "type": "page",
-                // "ref": "index.md"
-                
-                $menu_el = null;
-                
-                if(!property_exists($el, 'title') || !property_exists($el, 'ref')){
-                    throw new InvalidMenuItemException('Menu element should contain at least title and ref attributes', $el);
-                } 
-                
-                if(property_exists($el, 'type') && method_exists(MenuItem::class, $el->type)){
-                    $menu_el = MenuItem::{$el->type}($el->title, $el->ref); 
-                }
-                else {
-                    $menu_el = MenuItem::link($el->title, $el->ref);
-                }
-                
-                return $menu_el;
-                
-            }, $this->config->menu)));
-            
-        }
+        // TODO: grab menu items from the config
         
-        // grab first level sections if defined to do so in config 
-        if(config('pronto.sections_in_menu', false)){
-            // TODO: sections in menu
-        }
+        return $collection->filter(function($v, $k){
+            return $v->level() === 0 || ( $v->level() == 1 && $v->is_section_home() );
+        });
         
-        // return MenuItem collection
-        
-        return Collection::make($items);
     }
+    
+    
+    // Page retrieval methods ---------------
 	
     /**
-     * return the pages that belongs to a specified section
+     * return the pages that belongs to a specified section, i.e. are child of a PageItem->is_section_home() page
      */
 	function pages($section = null){
         return null;
@@ -115,217 +132,89 @@ class Content implements ContentContract
     }
     
     /**
-     * Find a page by its filename or slug. Optionally you can specify the section which contains the page
+     * Finds a page by its filename or slug.
      */
-    function page($name, $section = null){
+    function page($slug){
         
-        $directory = $this->storage_path . (!is_null($section) ? DIRECTORY_SEPARATOR . $section : '');
+        $all = $this->_all();
+        
+        // $directory = $this->storage_path . (!is_null($section) ? DIRECTORY_SEPARATOR . $section : '');
 
-        $name = ends_with($name, '.md') ? $name : $name . '.md';
+        // $name = ends_with($name, '.md') ? $name : $name . '.md';
         
-        $finder = Finder::create()->in($directory)->files()->name($name)->depth(0);
+        // $finder = Finder::create()->in($directory)->files()->name($name)->depth(0);
         
-        $count = iterator_count($finder);
+        // $count = iterator_count($finder);
         
-        if($count==0){
+        // if($count==0){
             throw new PageNotFoundException($name . (!is_null($section) ? ' in ' . $section : ''));
-        }
+        // }
         
-        $pg = iterator_to_array($finder, false)[0];
+        // $pg = iterator_to_array($finder, false)[0];
         
-        return PageItem::make($pg, $section);
+        // return PageItem::make($pg, $section);
     }
+
+
+    // Internal magic -----------------------
     
-    function section($section){
-        $directory = $this->storage_path . (!is_null($section) ? DIRECTORY_SEPARATOR . dirname($section) : '');
-        
-        $name = basename($section);
-        
-        $finder = Finder::create()->in($directory)->directories()->name($name)->depth(0);
-        
-        
-        
-        $count = iterator_count($finder);
-        
-        if($count==0){
-            throw new PageNotFoundException($name . (!is_null($section) ? ' in ' . dirname($section) : ''));
-        }
-        
-        $pg = iterator_to_array($finder, false)[0];
-        
-        // dd(compact('directory', 'name', 'pg'));
-        
-        return SectionItem::make($pg, $section);
-    }
-	
     /**
-     * Get the first level sections that could be found in a specific section. 
-     * If no section is specified the list of first level section in the content 
-     * folder are returned
+     * Retrieve all the content with respect to the current_language()
+     *
+     * @returns Collection<PageItem>
      */
-	function sections($section = null){
+    private function _all(){
         
-        // elenco delle section
+        $directory = $this->storage_path . '/' . $this->language . '/';
         
-        $directory = $this->storage_path . (!is_null($section) ? '/' . $section : '');
-        
-        $finder = Finder::create()->in($directory)->directories()->depth(0);
+        $finder = Finder::create()->in($directory)->files();
         
         $sections = array();
         
         foreach ($finder as $file) {
-
-            $sections[] = SectionItem::make($file, $section);
+            
+            $sections[] = PageItem::make($file, $this->language);
             
         }
-
+        
         return Collection::make($sections);
+        
     }
-	
+ 
+ 
+ 
+    // Static utility methods ---------------
+    
     /**
-     * Return the navigation menu for the specified section.
+     * Convert a string to slug
      *
-     * The navigation menu consists in sections, pages and other sub-sections.
-     *
-     * @returns collection of MenuItem
+     * @param string $str The string to transform
+     * @returns string The slug version of $str
      */
-	function section_menu($section){
-
-        /*
-            check section parent count w.r.t the content folder
-            if more than one show the parent link at least for the first direct parent
-        
-        
-        */
-        
-        $section_parent = array_values(array_filter(explode('/', $section), function($e){
-            return $e !== '.' && !empty($e);
-        }));
-        
-        $section_parent_count = count($section_parent);
-        
-        $directory = $this->storage_path . (!is_null($section) ? DIRECTORY_SEPARATOR . $section : '');
-        
-        $finder = Finder::create()->in($directory)->depth("< 1");
-        
-        $items = array();
-        
-        if($section_parent_count > 0){
-            $parent = $section_parent[$section_parent_count-1];
-            
-            $items[] = SectionItem::make(new SplFileInfo(realpath($this->storage_path . DIRECTORY_SEPARATOR . $parent), '', ''), dirname($section));
-        }
-        
-        foreach ($finder as $file) {
-            
-            if($file->isDir()){
-                $items[] = SectionItem::make($file, $section);
-            }
-            else if($file->getFileName() !== 'index.md'){
-                $items[] = PageItem::make($file, $section);
-            }
-            
-        }
-        
-        // SectionItem with child (SectionItem || PageItem)
-        // dd(compact('items', 'section', 'section_parent'));
-        return Collection::make($items);
-    }
-    
-    /**
-     retrieve all the content references
-    */
-    private function _all(){
-        // faccio lo scan ricorsivo di tutto il contenuto nella cartella "content"
-    }
-    
-    
     public static function str_to_slug($str){
         $str = str_replace('.md', '', $str);
         return str_slug($str);
     } 
     
+    /**
+     * Convert a slug to a normal string
+     *
+     * @param string $slug The slug
+     * @returns string The restored normal version of $slug
+     */
     public static function slug_to_str($slug){
         return ucwords(str_replace('_', ' ', str_replace('-', ' ', $slug)));
     }
     
+    /**
+     * Convert a file name to a title 
+     *
+     * @param string $str The name of the file
+     * @returns string The title of the file that was the result of $str transformation
+     */
     public static function filename_to_title($str){
         $str = str_replace('.md', '', $str);
         return ucwords(str_replace('_', ' ', str_replace('-', ' ', str_slug($str))));
     }
-    
-    
-    private function getNavigationMenu(){
-        
-        // $section_path = $this->storage_path . '/' . $section . '/';
-        
-        $sections = $this->filesystem->directories($this->storage_path);
-        
-        // if configuration exists, the configured sections govern the ordering and the sections showed.
-        // if in each section the array of pages exists it control what pages are showed and in which order
-        
-        if(!is_null($this->config) && property_exists($this->config, 'sections')){
-            // dd(array('dirs' => $directories, 'config' => $this->config));
-            
-            // filters directories based on what is in the config
-            
-            // order directories based on the config
-            
-            $sections = array_filter(array_map(function($section){
-                
-                $section->ref = $this->storage_path . '/' . $section->ref;
-                
-                return @is_dir($section->ref) ? $section : false; // return false in case the check for the directory existence fails
-                
-            }, $this->config->sections));
-        }
-        
-        // dd($sections);
-        
-        $menu = array();
-        
-        $all_files = array();
-        foreach ($sections as $sec) {
-            
-            $dir = is_string($sec) ? $sec : $sec->ref;
-            
-            $section_ref = basename($dir); 
-            
-            $name = is_string($sec) ? ucwords(str_replace('_', ' ', str_replace('-', ' ', $section_ref))) : $sec->title;
-            
-            
-            
-            // get markdown (md) files in the section or get pages from the configured array of pages
-            $all_files = (is_string($sec) && !property_exists($sec, 'pages')) ? $this->filesystem->glob($dir . '/*.md') : array_filter(array_map(function($p) use($dir){
-                $file = $dir . '/' . $p;
-                return @file_exists($file) && @is_file($file) ? $file : false;
-            }, $sec->pages));
-            
-            $mapped = array_map(function($el) use($dir, $section_ref){
-                
-                $f = str_replace('.md', '', basename($el));
-                
-                return array(
-                    'name' => ucwords(str_replace('_', ' ', str_replace('-', ' ', $f))),
-                    'section' => str_slug($section_ref),
-                    'page' => str_slug($f)
-                );
-                
-                // dd($el);
-                
-            }, $all_files);
-            
-            
-            
-            $menu[] = array(
-                'name' => $name,
-                'child' => $mapped
-            );
-            
-        }
-        
-        return $menu;
-    }
-
 
 }

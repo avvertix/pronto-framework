@@ -37,6 +37,19 @@ if (! function_exists('content_path')) {
     }
 }
 
+if (! function_exists('config_path')) {
+    /**
+     * Get the path to the configuration directory.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function config_path($path = '')
+    {
+        return realpath(config('pronto.config_folder', storage_path('app')).($path ? '/'.$path : $path));
+    }
+}
+
 if (! function_exists('image_path')) {
     /**
      * Get the path to the images directory.

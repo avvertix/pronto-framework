@@ -13,20 +13,59 @@ class PageItem implements Menuable
 {
 
 	private $title = null;
+    
 	private $slug = null;
-	private $path = null;
-	private $file = null;
+	
+    private $path = null;
+	
+    private $file = null;
+    
+    private $metadata = null;
+    
+    /**
+     * Page Order.
+     *
+     * null or negative value will make the page disappear from the menu
+     */
+    private $order = 0;
+    
+    /**
+     * 0 is base level, 1 or more states that is in a sub-folder 
+     */
+    private $level = 0;
+
+    /**
+     * true if page is index.md of a sub-folder
+     */
+    private $is_section_home = false;    
+    
+    /**
+     * the language of the page (inherited from the content subfolder) 
+     */
+    private $language = 'en'; // 
 
 	/**
 	 * __construct 
 	 */
-	protected function __construct(SplFileInfo $file, $relativePath = null){
-		$this->title = Content::filename_to_title($file->getFilename());
-		$this->slug = Content::str_to_slug($file->getFilename());
+	protected function __construct(SplFileInfo $file, $language = 'en'){
+        
+		$this->title = Content::filename_to_title($file->getFilename()); // TODO: use title defined in the front-matter if available
 		
-		$relativePath = (!is_null($relativePath) && !empty($relativePath) ? $relativePath : $file->getRelativePath());
+        
+        $this->slug = Content::str_to_slug($file->getFilename());  // TODO: use slug defined in the front-matter if available
+		
+		$relativePath = $file->getRelativePath();
 		$this->path =  $relativePath . (ends_with($relativePath, '/') ? '' : '/') . $this->slug;
-		 
+		
+        
+        if(ends_with($file->getRelativePathName(), 'index.md')){
+            $this->is_section_home = true;
+        }
+        
+        $this->level = count( array_filter( explode( DIRECTORY_SEPARATOR, $file->getRelativePath() ) ) );
+        
+        $this->language = $language;
+        
 		$this->file = $file;
 	}
 
@@ -52,7 +91,7 @@ class PageItem implements Menuable
 	}
 	
 	public function link_to(){
-		return route('page', ['page' => $this->path]);
+		return null; //route('page', ['page' => $this->path]);
 	}
 	
 	/**
@@ -65,11 +104,11 @@ class PageItem implements Menuable
 	}
 	
 	/**
-	 * Return the file content
+	 * Return the file raw content
 	 *
 	 * @return string
 	 */
-	public function content(){
+	public function rawcontent(){
 		return $this->file->getContents();
 	}
 	
@@ -88,9 +127,21 @@ class PageItem implements Menuable
 	public function filepath(){
 		return $this->file->getRealPath();
 	}
+    
+    public function filepathname(){
+		return $this->file->getRelativePathName();
+	}
 	
 	function is_group(){
 		return false;
+	}
+    
+    function is_section_home(){
+        return $this->is_section_home;
+    }
+    
+    function level(){
+		return $this->level;
 	}
 
 
@@ -98,11 +149,11 @@ class PageItem implements Menuable
 	 * Create a new PageItem instance given a file.
 	 *
 	 * @param SplFileInfo $file the file to get the information from
-	 * @param string $relativePath the optional relative path, if cannot be deduced by the $file argument (default null => $file->getRelativePath() will be used)
+	 * @param string $language the language code of the file content
 	 * @returns PageItem
 	 */
-	public static function make(SplFileInfo $file, $relativePath = null){
-		return new self($file, $relativePath);
+	public static function make(SplFileInfo $file, $language = 'me'){
+		return new self($file, $language);
 	}
 
 }

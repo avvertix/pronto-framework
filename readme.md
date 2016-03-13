@@ -31,3 +31,27 @@ get a link to the specified markdown file
 **image_path helper**
 
 **assets_path helper**
+
+
+
+
+
+
+
+
+## Content
+
+How to use Markdown to format your topic
+
+The topics in this repository use Markdown. Here is a good overview of Markdown basics.
+
+Topic Metadata
+
+Topic metadata enables certain functionalities for the topics such as table of contents order, topic descriptions, and online search optimization as well as aiding Microsoft in evaluating the effectiveness of the content.
+
+- **Order** - This is the order that is used in the left rail TOC, the page is left out of the TOC if this is blank
+- **PageTitle** - The title used in the HTML title for the page and in search results
+- **TOCTitle** (optional) - The title used in the left rail Table of Contents for this page. Use this is the title needs to be different than PageTitle
+- **DateApproved** - This is set when the page is actually published on the portal. You can ignore it.
+- **MetaDescription** - The meta description for this page which helps for search
+- **MetaTags** - Further tags for this page again for search
