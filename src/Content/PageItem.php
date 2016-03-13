@@ -6,6 +6,8 @@ use Symfony\Component\Finder\SplFileInfo;
 use Pronto\Content\Content;
 use Pronto\Contracts\Menuable;
 
+use Pronto\Markdown\Parser;
+
 /**
  * Describe a Page
  */
@@ -49,24 +51,44 @@ class PageItem implements Menuable
 	 */
 	protected function __construct(SplFileInfo $file, $language = 'en'){
         
-		$this->title = Content::filename_to_title($file->getFilename()); // TODO: use title defined in the front-matter if available
-		
+        $parser = app(Parser::class);
         
-        $this->slug = Content::str_to_slug($file->getFilename());  // TODO: use slug defined in the front-matter if available
-		
-		$relativePath = $file->getRelativePath();
-		$this->path =  $relativePath . (ends_with($relativePath, '/') ? '' : '/') . $this->slug;
-		
+        $this->metadata = $parser->frontmatter($file->getContents());
+        
+		$this->title = isset($this->metadata['PageTitle']) ? $this->metadata['PageTitle'] : Content::filename_to_title($file->getFilename());
+
+        $this->slug = Content::str_to_slug($this->title);
         
         if(ends_with($file->getRelativePathName(), 'index.md')){
             $this->is_section_home = true;
         }
         
         $this->level = count( array_filter( explode( DIRECTORY_SEPARATOR, $file->getRelativePath() ) ) );
+		
+		$relativePath = str_replace('\\', '/', $file->getRelativePath());
+		
+		
+        if( $this->level > 0 && $this->is_section_home ){
+            $this->path =  $relativePath;
+        }
+        else {
+            $relativePath = $relativePath . (ends_with($relativePath, '/') ? '' : '/');
+            $this->path =  $relativePath . $this->slug;
+        }
+        
+        
+		
+        
+        
+        
+        
         
         $this->language = $language;
         
 		$this->file = $file;
+        
+        $this->order = isset($this->metadata['Order']) ? $this->metadata['Order'] : 0;
+        
 	}
 
 	/**

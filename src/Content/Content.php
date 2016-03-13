@@ -38,14 +38,14 @@ class Content implements ContentContract
      */
     private $language = 'en';
     
-	
+    
 	function __construct($config, Filesystem $fileSystemService){
         
 		$this->filesystem = $fileSystemService;
         
         $this->storage_path = $config['content_folder'];
         
-        $this->language = $config['default_language']; 
+        $this->language = $config['default_language'];
         
         // $config_path = realpath(config_path('config.json'));
         
@@ -132,27 +132,27 @@ class Content implements ContentContract
     }
     
     /**
-     * Finds a page by its filename or slug.
+     * Finds a page by its slug or full URL path
      */
     function page($slug){
         
         $all = $this->_all();
         
-        // $directory = $this->storage_path . (!is_null($section) ? DIRECTORY_SEPARATOR . $section : '');
-
-        // $name = ends_with($name, '.md') ? $name : $name . '.md';
+        $page = $all->first(function($k, $v) use($slug) {
+            
+            $path = $v->path();
+            $path_slash = ends_with($path, '/') ? $path : $path.'/';
+            
+            return $v->slug() === $slug || $v->path() === $slug || ($v->path().'/') === $slug;
+            
+        });
         
-        // $finder = Finder::create()->in($directory)->files()->name($name)->depth(0);
+        if(is_null($page)){
+            throw new PageNotFoundException($slug);
+        }
         
-        // $count = iterator_count($finder);
+        return $page;
         
-        // if($count==0){
-            throw new PageNotFoundException($name . (!is_null($section) ? ' in ' . $section : ''));
-        // }
-        
-        // $pg = iterator_to_array($finder, false)[0];
-        
-        // return PageItem::make($pg, $section);
     }
 
 

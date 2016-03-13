@@ -12,8 +12,8 @@ class ContentServiceTest extends TestCase
         return [
             ['welcome-to-pronto', 'Welcome to Pronto'],
             ['sub-index', 'Sub Index'],
-            ['section-1/sub-index', 'Sub Index'],
             ['section-1/', 'Sub Index'],
+            ['section-1', 'Sub Index'],
             ['section-1/other-page', 'Other Page'],
             ['section-1/sub-1/', 'Sub 1 Index'],
             ['section-1/sub-1', 'Sub 1 Index'],

@@ -6,6 +6,7 @@ namespace Pronto\Providers;
 use Illuminate\Support\ServiceProvider;
 use ParsedownExtra;
 use Pronto\Content\Content;
+use Pronto\Markdown\Parser;
 
 class ContentServiceProvider extends ServiceProvider
 {
@@ -22,7 +23,7 @@ class ContentServiceProvider extends ServiceProvider
         // register the Content provider
         $this->app->singleton('Pronto\Contracts\Content', function ($app) {
             
-            $c = new Content( config('pronto'), $app->make('Illuminate\Filesystem\Filesystem') );
+            $c = new Content( config('pronto'), $app->make('Illuminate\Filesystem\Filesystem'), $app->make(Parser::class) );
             
             return $c;
         });
