@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/avvertix/pronto-framework.svg?branch=master)](https://travis-ci.org/avvertix/pronto-framework)
+
 # Pronto CMS Framework
 
 
@@ -38,20 +40,33 @@ get a link to the specified markdown file
 
 
 
+## What content is understood
 
-## Content
+The content parser offered in this little framework is capable of understanding markdown files with/with-out front-matter.
 
-How to use Markdown to format your topic
+Markdown files are forced to have `.md` extension and with UTF-8 character encoding.
 
-The topics in this repository use Markdown. Here is a good overview of Markdown basics.
+If the front matter is set it must start with `---` and end with `---` on their respective lines, like
 
-Topic Metadata
+```
+---
+Order: 0
+PageTitle: Welcome to Pronto
+TOCTitle: Welcome
+MetaDescription: This is Pronto, the CMS almost "ready".
+MetaTags: pronto, cms
+---
 
-Topic metadata enables certain functionalities for the topics such as table of contents order, topic descriptions, and online search optimization as well as aiding Microsoft in evaluating the effectiveness of the content.
+This is the page **static text**
+```  
+
+### Metadata
+
+Actually some metadata contained in the front-matter section of the Markdown files are used inside the framework:
 
 - **Order** - This is the order that is used in the left rail TOC, the page is left out of the TOC if this is blank
 - **PageTitle** - The title used in the HTML title for the page and in search results
 - **TOCTitle** (optional) - The title used in the left rail Table of Contents for this page. Use this is the title needs to be different than PageTitle
-- **DateApproved** - This is set when the page is actually published on the portal. You can ignore it.
 - **MetaDescription** - The meta description for this page which helps for search
 - **MetaTags** - Further tags for this page again for search
+
