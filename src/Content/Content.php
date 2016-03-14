@@ -110,21 +110,32 @@ class Content implements ContentContract
 	
     /**
      * return the pages that belongs to a specified section, i.e. are child of a PageItem->is_section_home() page
+     * empty or null $parent will cause to return 
      */
-	function pages($section = null){
-        return null;
-    }
-    
-    /**
-     * Check if the specified path match to a section
-     */
-    function is_section($path){
-        try {
-            $this->page( basename($path), dirname($path));
-            return false;
-        }catch(PageNotFoundException $pnfe){
-            return true;
+	function pages($parent){
+        
+        if(is_null($parent) || empty($parent)){
+            throw new \InvalidArgumentException('You must specify a parent path in the form one/two/');
         }
+        
+        $collection = $this->_all();
+        
+        // current level of the parent specified, based on how many slash it contains
+        $level = count( array_filter( explode( '/', $parent ) ) );
+        
+        
+        // Page that has level >= level_of($parent_slug)
+        return $collection->filter(function($v, $k) use($parent, $level) {
+                        
+            $path = $v->path();
+            $path_slash = ends_with($path, '/') ? $path : $path.'/';
+            
+            $condition = $v->level() === $level && ( starts_with($path, $parent) || starts_with($path_slash, $parent) );
+            $condition2 = $v->level() === $level+1 && $v->is_section_home() && ( starts_with($path, $parent) || starts_with($path_slash, $parent) );
+            
+            return $condition || $condition2;
+        });
+        
     }
     
     /**

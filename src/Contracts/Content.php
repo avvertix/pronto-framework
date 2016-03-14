@@ -14,20 +14,12 @@ interface Content
     /**
      * Retrieves all the pages, optionally filters only what is contained in a specific section
      */
-	function pages( $section=null );
+	function pages( $parent );
     
     /**
      * Retrieve a page by its slug
      */
     function page($slug);
-	
-	// function section($section);
-	
-	// function sections();
-	
-	// function section_menu($section);
-	
-	// function is_section($path);
 	
 	/**
      * Get the list of languages in which the content is available

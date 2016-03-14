@@ -22,6 +22,26 @@ class ContentServiceTest extends TestCase
         
     }
     
+    function subpages_bad_args_provider(){
+        
+        return [
+            [null, 1, ['welcome-to-pronto']],
+            ['', 1, ['welcome-to-pronto']],
+        ];
+        
+    }
+    
+    function subpages_provider(){
+        
+        return [
+            ['section-1/', 3, ['section-1/', 'section-1/other-page', 'section-1/sub-1/']],
+            ['section-1', 3, ['section-1/', 'section-1/other-page', 'section-1/sub-1/']],
+            ['section-1/sub-1/', 2, ['section-1/sub-1/', 'section-1/sub-1/sub-section']],
+            ['section-1/sub-1', 2, ['section-1/sub-1/', 'section-1/sub-1/sub-section']],
+        ];
+        
+    }
+    
     
     // tests --------------------------------
     
@@ -93,41 +113,32 @@ class ContentServiceTest extends TestCase
         
     }
     
-    // public function testGetSections()
-    // {
-    //     $sections = content()->sections();
+    /**
+     * Test if the ToC of a section is returned correctly
+     * @dataProvider subpages_provider
+     */
+    public function testGetPages($parent, $expected_count, $expected_slugs)
+    {
+        $sections = content()->pages($parent);
         
-    //     // var_dump($sections);
+        // var_dump($sections);
         
-    //     $this->assertInstanceOf('Illuminate\Support\Collection', $sections);
+        $this->assertInstanceOf('Illuminate\Support\Collection', $sections);
         
-    //     $this->assertContainsOnlyInstancesOf('Pronto\Content\SectionItem', $sections->all());
+        $this->assertContainsOnlyInstancesOf('Pronto\Content\PageItem', $sections->all());
         
-    //     $this->assertEquals(1, $sections->count());
-        
-        
-    //     $sections2 = content()->sections('example-section');
-        
-    //     // var_dump($sections2);
-        
-    //     $this->assertInstanceOf('Illuminate\Support\Collection', $sections2);
-        
-    //     $this->assertEquals(2, $sections2->count());
-    // }
+        $this->assertEquals($expected_count, $sections->count());
+    }
     
-    // public function testGetSectionMenu()
-    // {
-    //     $menu = content()->section_menu('example-section');
-        
-    //     // var_dump($menu);
-        
-    //     $this->assertInstanceOf('Illuminate\Support\Collection', $menu);
-        
-    //     $this->assertEquals(3, $menu->count());
-        
-    //     $this->assertContainsOnlyInstancesOf('Pronto\Contracts\Menuable', $menu->all());
-        
-    // }
+    /**
+     * Test if the ToC of a section is returned correctly
+     * @dataProvider subpages_bad_args_provider
+     * @expectedException InvalidArgumentException
+     */
+    public function testGetPagesInvalidArgument($parent, $expected_count, $expected_slugs)
+    {
+        $sections = content()->pages($parent);
+    }
     
     /**
      * @dataProvider pages_provider 
