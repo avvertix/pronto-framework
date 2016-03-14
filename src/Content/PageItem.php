@@ -112,6 +112,9 @@ class PageItem implements Menuable
 		return $this->path;
 	}
 	
+    /**
+     * @deprecated
+     */
 	public function link_to(){
 		return null;
 	}
