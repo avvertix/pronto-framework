@@ -113,7 +113,7 @@ class PageItem implements Menuable
 	}
 	
 	public function link_to(){
-		return null; //route('page', ['page' => $this->path]);
+		return null;
 	}
 	
 	/**
