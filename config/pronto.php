@@ -26,5 +26,15 @@ return [
      * Where the additional configuration is stored
      */
     'config_folder' => storage_path('app'),
+    
+    /**
+     * Application logo file path
+     */
+    'logo' => env('PRONTO_APP_LOGO', 'logo.png'),
+    
+    /**
+     * Application UI theme
+     */
+    'theme' => env('PRONTO_APP_THEME', 'default'),
 
 ];
