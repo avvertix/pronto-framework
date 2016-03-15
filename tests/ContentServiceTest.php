@@ -103,8 +103,6 @@ class ContentServiceTest extends TestCase
         
         $this->assertEquals(2, $content_service->count());
         
-        $this->assertContainsOnlyInstancesOf('Pronto\Contracts\Menuable', $content_service->all());
-        
         $elementPaths = $content_service->map(function($r){
             return $r->filepathname();
         })->toArray();
