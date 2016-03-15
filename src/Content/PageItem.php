@@ -40,12 +40,14 @@ class PageItem implements Linkable, Titleable
     /**
      * true if page is index.md of a sub-folder
      */
-    private $is_section_home = false;    
+    private $is_section_home = false;
+        
+    private $is_homepage = false;    
     
     /**
      * the language of the page (inherited from the content subfolder) 
      */
-    private $language = 'en'; // 
+    private $language = 'en'; 
 
 	/**
 	 * __construct 
@@ -68,6 +70,7 @@ class PageItem implements Linkable, Titleable
 		
 		$relativePath = str_replace('\\', '/', $file->getRelativePath());
 		
+        $this->is_homepage = $this->level === 0 && $this->is_section_home;  
 		
         if( $this->level > 0 && $this->is_section_home ){
             $this->path =  $relativePath;
@@ -76,13 +79,6 @@ class PageItem implements Linkable, Titleable
             $relativePath = $relativePath . (ends_with($relativePath, '/') ? '' : '/');
             $this->path =  $relativePath . $this->slug;
         }
-        
-        
-		
-        
-        
-        
-        
         
         $this->language = $language;
         
@@ -174,6 +170,13 @@ class PageItem implements Linkable, Titleable
     function order(){
 		return $this->order;
 	}
+    
+    /**
+     * Get if the current PageItem is the home page of the site with respect to the current language
+     */
+    function is_homepage(){
+        return $this->is_homepage;
+    }
     
     /**
      * Get the metadata of the page.

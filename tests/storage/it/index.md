@@ -1,7 +1,7 @@
 ---
 Order: 0
-PageTitle: Italiano
-TOCTitle: Italiano
+PageTitle: Benvenuti in Pronto
+TOCTitle: Benvenuti
 MetaDescription: Pagina principale in italiano
 MetaTags: pronto, cms
 ---

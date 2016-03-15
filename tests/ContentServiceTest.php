@@ -119,8 +119,6 @@ class ContentServiceTest extends TestCase
     {
         $sections = content()->pages($parent);
         
-        // var_dump($sections);
-        
         $this->assertInstanceOf('Illuminate\Support\Collection', $sections);
         
         $this->assertContainsOnlyInstancesOf('Pronto\Content\PageItem', $sections->all());
@@ -153,6 +151,53 @@ class ContentServiceTest extends TestCase
         $this->assertEquals(0, $page->level());
         $this->assertEquals('/welcome-to-pronto', $page->path());
         $this->assertEquals(0, $page->order());
+        $this->assertEquals(true, $page->is_homepage());
+        $this->assertEquals('Welcome', $page->metadata('TOCTitle'));
+        $this->assertEquals('This is Pronto, the CMS almost "ready".', $page->metadata('MetaDescription'));
+        $this->assertEquals('pronto, cms', $page->metadata('MetaTags'));
+        $this->assertEquals('<p>This is the page <strong>static text</strong></p>', $page->toHtml());
+        
+    }
+    
+    
+    public function testGetHomePage()
+    {
+        
+        // IT language
+        
+        content()->set_current_language('it');
+        
+        $page = content()->homepage();
+        
+        $this->assertInstanceOf('Pronto\Content\PageItem', $page);
+        
+        $this->assertEquals('Benvenuti in Pronto', $page->title());
+        $this->assertEquals('benvenuti-in-pronto', $page->slug());
+        $this->assertEquals(true, $page->is_section_home());
+        $this->assertEquals(0, $page->level());
+        $this->assertEquals('/benvenuti-in-pronto', $page->path());
+        $this->assertEquals(0, $page->order());
+        $this->assertEquals(true, $page->is_homepage());
+        $this->assertEquals('Benvenuti', $page->metadata('TOCTitle'));
+        $this->assertEquals('Pagina principale in italiano', $page->metadata('MetaDescription'));
+        $this->assertEquals('pronto, cms', $page->metadata('MetaTags'));
+        $this->assertEquals('<p>Pagina principale in <strong>italiano</strong></p>', $page->toHtml());
+        
+        // EN language
+        
+        content()->set_current_language('en');
+        
+        $page = content()->homepage();
+        
+        $this->assertInstanceOf('Pronto\Content\PageItem', $page);
+        
+        $this->assertEquals('Welcome to Pronto', $page->title());
+        $this->assertEquals('welcome-to-pronto', $page->slug());
+        $this->assertEquals(true, $page->is_section_home());
+        $this->assertEquals(0, $page->level());
+        $this->assertEquals('/welcome-to-pronto', $page->path());
+        $this->assertEquals(0, $page->order());
+        $this->assertEquals(true, $page->is_homepage());
         $this->assertEquals('Welcome', $page->metadata('TOCTitle'));
         $this->assertEquals('This is Pronto, the CMS almost "ready".', $page->metadata('MetaDescription'));
         $this->assertEquals('pronto, cms', $page->metadata('MetaTags'));

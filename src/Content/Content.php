@@ -99,9 +99,16 @@ class Content implements ContentContract
         
         // TODO: grab menu items from the config
         
-        return $collection->filter(function($v, $k){
+        
+        $collection = $collection->filter(function($v, $k){
             return $v->level() === 0 || ( $v->level() == 1 && $v->is_section_home() );
         });
+        
+        $menu = $collection->sortBy(function($v){
+            return $v->order();
+        });
+        
+        return $menu;
         
     }
     
@@ -156,6 +163,24 @@ class Content implements ContentContract
         
         if(is_null($page)){
             throw new PageNotFoundException($slug);
+        }
+        
+        return $page;
+        
+    }
+    
+    function homepage(){
+        
+        $all = $this->_all();
+        
+        $page = $all->first(function($k, $v) {
+            
+            return $v->is_homepage();
+            
+        });
+        
+        if(is_null($page)){
+            throw new PageNotFoundException('The home page has not been found');
         }
         
         return $page;

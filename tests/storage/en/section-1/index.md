@@ -1,5 +1,5 @@
 ---
-Order: 0
+Order: 1
 PageTitle: Sub Index
 TOCTitle: Sub Index
 MetaDescription: This is Pronto, the CMS almost "ready".

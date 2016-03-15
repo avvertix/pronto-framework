@@ -36,5 +36,10 @@ interface Content
      */
     function set_current_language( $language );
     
-    // function route( $page_slug );
+    /**
+     * Get the home page PageItem
+     *
+     * @return PageItem the home page
+     */
+    function homepage();
 }
