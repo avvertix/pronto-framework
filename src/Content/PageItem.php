@@ -4,14 +4,15 @@ namespace Pronto\Content;
 
 use Symfony\Component\Finder\SplFileInfo;
 use Pronto\Content\Content;
-use Pronto\Contracts\Menuable;
+use Pronto\Contracts\Linkable;
+use Pronto\Contracts\Titleable;
 
 use Pronto\Markdown\Parser;
 
 /**
  * Describe a Page
  */
-class PageItem implements Menuable
+class PageItem implements Linkable, Titleable
 {
 
 	private $title = null;
@@ -97,9 +98,6 @@ class PageItem implements Menuable
 	 * @return string
 	 */
 	public function title(){
-
-		// TODO: get title from meta attribute in the file content if available
-		
 		return $this->title;
 	}
 	
@@ -110,13 +108,6 @@ class PageItem implements Menuable
 	 */
 	public function path(){
 		return $this->path;
-	}
-	
-    /**
-     * @deprecated
-     */
-	public function link_to(){
-		return null;
 	}
 	
 	/**
@@ -135,6 +126,17 @@ class PageItem implements Menuable
 	 */
 	public function rawcontent(){
 		return $this->file->getContents();
+	}
+    
+    /**
+     * Get the content of the page formatted with HTML
+     */
+    public function toHtml(){
+        
+        $parser = app(Parser::class);
+        
+        return $parser->text($this->file->getContents());
+        
 	}
 	
 	/**
@@ -168,6 +170,27 @@ class PageItem implements Menuable
     function level(){
 		return $this->level;
 	}
+    
+    function order(){
+		return $this->order;
+	}
+    
+    /**
+     * Get the metadata of the page.
+     * If no parameters are specified returns all the available metadata array. If a $key is specified return the metadata value that correspond to the $key, if exists, $default otherwise
+     */
+    function metadata($key = null, $default = false){
+        if(is_null($key)){
+            $is_a_copy = $this->metadata;
+            return $is_a_copy;
+        }
+        
+        if(isset($this->metadata[$key])){
+            return $this->metadata[$key];
+        }
+        
+        return $default;
+    }
 
 
 	/**

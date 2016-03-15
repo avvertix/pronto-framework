@@ -141,6 +141,29 @@ class ContentServiceTest extends TestCase
     }
     
     /**
+     * Test if the PageItem methods for the content and metadata behave as expected
+     */
+    public function testGetSinglePage()
+    {
+        $page = content()->page( 'welcome-to-pronto' );
+        
+        $this->assertInstanceOf('Pronto\Content\PageItem', $page);
+        
+        $this->assertEquals('Welcome to Pronto', $page->title());
+        $this->assertEquals('welcome-to-pronto', $page->slug());
+        $this->assertEquals(true, $page->is_section_home());
+        $this->assertEquals(0, $page->level());
+        $this->assertEquals('/welcome-to-pronto', $page->path());
+        $this->assertEquals(0, $page->order());
+        $this->assertEquals('Welcome', $page->metadata('TOCTitle'));
+        $this->assertEquals('This is Pronto, the CMS almost "ready".', $page->metadata('MetaDescription'));
+        $this->assertEquals('pronto, cms', $page->metadata('MetaTags'));
+        $this->assertEquals('<p>This is the page <strong>static text</strong></p>', $page->toHtml());
+        
+    }
+    
+    
+    /**
      * @dataProvider pages_provider 
      */
     public function testGetPage($page_slug, $expected_title)
