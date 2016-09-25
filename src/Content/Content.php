@@ -8,7 +8,6 @@ use Illuminate\Support\Collection;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
-use Pronto\Exceptions\InvalidMenuItemException;
 use Pronto\Exceptions\PageNotFoundException;
 
 class Content implements ContentContract
@@ -67,6 +66,8 @@ class Content implements ContentContract
     }
     
     function current_language(){
+
+        // TODO: app('translator')->getLocale()
         
         return $this->language;
         
@@ -97,11 +98,9 @@ class Content implements ContentContract
         
         $collection = $this->_all();
         
-        // TODO: grab menu items from the config
-        
-        
         $collection = $collection->filter(function($v, $k){
-            return $v->level() === 0 || ( $v->level() == 1 && $v->is_section_home() );
+            return !$v->is_homepage() && 
+                ( $v->level() === 0 || ( $v->level() == 1 && $v->is_section_home() ) );
         });
         
         $menu = $collection->sortBy(function($v){
@@ -152,7 +151,7 @@ class Content implements ContentContract
         
         $all = $this->_all();
         
-        $page = $all->first(function($k, $v) use($slug) {
+        $page = $all->first(function($v, $k) use($slug) {
             
             $path = $v->path();
             $path_slash = ends_with($path, '/') ? $path : $path.'/';
@@ -173,7 +172,7 @@ class Content implements ContentContract
         
         $all = $this->_all();
         
-        $page = $all->first(function($k, $v) {
+        $page = $all->first(function($v, $k) {
             
             return $v->is_homepage();
             

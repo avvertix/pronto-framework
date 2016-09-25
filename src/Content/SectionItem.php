@@ -4,12 +4,13 @@ namespace Pronto\Content;
 
 use Symfony\Component\Finder\SplFileInfo;
 use Pronto\Content\Content;
-use Pronto\Contracts\Menuable;
+use Pronto\Contracts\Linkable;
+use Pronto\Contracts\Titleable;
 
 /**
  * Describe a Section
  */
-class SectionItem  implements Menuable
+class SectionItem  implements Linkable, Titleable
 {
 
 	private $title = null;

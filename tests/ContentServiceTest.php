@@ -52,7 +52,7 @@ class ContentServiceTest extends TestCase
      */
     public function testContentHelper()
     {
-        
+
         $content_service = content();
         
         $this->assertInstanceOf('Pronto\Content\Content', $content_service);
@@ -80,20 +80,20 @@ class ContentServiceTest extends TestCase
      */
     public function testGetGlobalNavigationMenu()
     {
-        
+        //TODO: add separate test for retrieving the homepage element
         content()->set_current_language('it');
         
         $content_service = content()->global_navigation();
         
         $this->assertInstanceOf('Illuminate\Support\Collection', $content_service);
         
-        $this->assertEquals(1, $content_service->count());
+        $this->assertEquals(0, $content_service->count());
         
-        $elementPaths = $content_service->map(function($r){
-            return $r->filepathname();
-        })->toArray();
+        // $elementPaths = $content_service->map(function($r){
+        //     return $r->filepathname();
+        // })->toArray();
         
-        $this->assertEquals(["index.md"], $elementPaths);
+        // $this->assertEquals(["index.md"], $elementPaths);
         
         content()->set_current_language('en');
         
@@ -101,13 +101,13 @@ class ContentServiceTest extends TestCase
         
         $this->assertInstanceOf('Illuminate\Support\Collection', $content_service);
         
-        $this->assertEquals(2, $content_service->count());
+        $this->assertEquals(1, $content_service->count());
         
-        $elementPaths = $content_service->map(function($r){
+        $elementPaths = array_values($content_service->map(function($r){
             return $r->filepathname();
-        })->toArray();
+        })->toArray());
         
-        $this->assertEquals(["index.md", "section-1".DIRECTORY_SEPARATOR."index.md"], $elementPaths);
+        $this->assertEquals(["section-1".DIRECTORY_SEPARATOR."index.md"], $elementPaths);
         
     }
     

@@ -58,7 +58,7 @@ class PageItem implements Linkable, Titleable
         
         $this->metadata = $parser->frontmatter($file->getContents());
         
-		$this->title = isset($this->metadata['PageTitle']) ? $this->metadata['PageTitle'] : Content::filename_to_title($file->getFilename());
+		$this->title = isset($this->metadata['PageTitle']) ? $this->metadata['PageTitle'] : (isset($this->metadata['Title']) ? $this->metadata['Title'] : Content::filename_to_title($file->getFilename()));
 
         $this->slug = Content::str_to_slug($this->title);
         
@@ -84,7 +84,7 @@ class PageItem implements Linkable, Titleable
         
 		$this->file = $file;
         
-        $this->order = isset($this->metadata['Order']) ? $this->metadata['Order'] : 0;
+        $this->order = isset($this->metadata['Order']) ? $this->metadata['Order'] : (isset($this->metadata['Sort']) ? $this->metadata['Sort'] : 0);
         
 	}
 
@@ -203,7 +203,7 @@ class PageItem implements Linkable, Titleable
 	 * @param string $language the language code of the file content
 	 * @returns PageItem
 	 */
-	public static function make(SplFileInfo $file, $language = 'me'){
+	public static function make(SplFileInfo $file, $language = 'en'){
 		return new self($file, $language);
 	}
 
